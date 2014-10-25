@@ -62,16 +62,27 @@
           // If the before filter is just a single function, then call
           // it with the arguments.
           beforeCallback = this.before;
-        } else if ( typeof this.before[route] !== "undefined" ) {
-
-          // otherwise, find the appropriate callback for the route name
-          // and call that.
-          beforeCallback = this.before[route];
         } else {
-
-          // otherwise, if we have a hash of routes, but no before callback
-          // for this route, just use a nop function.
-          beforeCallback = nop;
+          var flag = false;
+          for(var i in this.before){
+            if (this.before.hasOwnProperty(i)){
+              if (i == '*'){
+                continue;
+              }
+              var rg = new RegExp(i, 'i');
+              if (rg.test(route)){
+                flag = true;
+                break;
+              }
+            }
+          }
+          if (flag){
+            beforeCallback = this.before[i];
+          } else if (this.before['*']) {
+            beforeCallback = this.before['*'];
+          } else {
+            beforeCallback = nop;
+          }
         }
 
         // If the before callback fails during its execusion (by returning)
