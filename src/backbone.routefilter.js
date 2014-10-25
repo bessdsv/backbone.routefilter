@@ -101,21 +101,30 @@
         var afterCallback;
         if ( _.isFunction(this.after) ) {
 
-          // If the after filter is a single funciton, then call it with
-          // the proper arguments.
+          // If the before filter is just a single function, then call
+          // it with the arguments.
           afterCallback = this.after;
-
-        } else if ( typeof this.after[route] !== "undefined" ) {
-
-          // otherwise if we have a hash of routes, call the appropriate
-          // callback based on the route name.
-          afterCallback = this.after[route];
-
         } else {
-
-          // otherwise, if we have a has of routes but no after callback
-          // for this route, just use the nop function.
-          afterCallback = nop;
+          var flag = false;
+          for(var i in this.after){
+            if (this.after.hasOwnProperty(i)){
+              if (i == '*'){
+                continue;
+              }
+              var rg = new RegExp(i, 'i');
+              if (rg.test(route)){
+                flag = true;
+                break;
+              }
+            }
+          }
+          if (flag){
+            afterCallback = this.after[i];
+          } else if (this.after['*']) {
+            afterCallback = this.after['*'];
+          } else {
+            afterCallback = nop;
+          }
         }
 
         // Call the after filter.
